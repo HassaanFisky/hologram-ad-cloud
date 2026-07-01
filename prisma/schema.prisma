@@ -1,0 +1,380 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  COMPANY_ADMIN
+  OPERATIONS_MANAGER
+  INSTALLER
+  CUSTOMER_VIEWER
+  FINANCE
+}
+
+enum DeviceStatus {
+  PENDING_PAIRING
+  ONLINE
+  OFFLINE
+  DEGRADED
+  MAINTENANCE
+  RETIRED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  HTML
+}
+
+enum MediaStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+  ARCHIVED
+}
+
+enum ScheduleStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  EXPIRED
+}
+
+enum OtaStatus {
+  DRAFT
+  READY
+  ROLLING_OUT
+  PAUSED
+  COMPLETED
+  FAILED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PAIR_DEVICE
+  COMMAND_DEVICE
+  UPLOAD_MEDIA
+  SCHEDULE_CONTENT
+  OTA_ROLLOUT
+}
+
+model Company {
+  id           String   @id @default(uuid())
+  name         String
+  legalName    String?
+  taxId        String?
+  billingEmail String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  users         User[]
+  customers     Customer[]
+  devices       Device[]
+  groups        DeviceGroup[]
+  media         MediaAsset[]
+  playlists     Playlist[]
+  schedules     Schedule[]
+  subscriptions Subscription[]
+  auditLogs     AuditLog[]
+
+  @@index([name])
+}
+
+model User {
+  id               String    @id @default(uuid())
+  companyId        String?
+  email            String    @unique
+  passwordHash     String
+  fullName         String
+  role             UserRole
+  isActive         Boolean   @default(true)
+  refreshTokenHash String?
+  lastLoginAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  company   Company?   @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  auditLogs AuditLog[]
+
+  @@index([companyId, role])
+}
+
+model Customer {
+  id           String   @id @default(uuid())
+  companyId    String
+  name         String
+  contactEmail String?
+  contactPhone String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company   Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  campaigns Campaign[]
+
+  @@index([companyId, name])
+}
+
+model Campaign {
+  id         String   @id @default(uuid())
+  companyId  String
+  customerId String
+  name       String
+  startsAt   DateTime
+  endsAt     DateTime
+  createdAt  DateTime @default(now())
+
+  customer  Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  schedules Schedule[]
+
+  @@index([companyId, customerId])
+}
+
+model Device {
+  id              String       @id @default(uuid())
+  companyId       String
+  name            String
+  serialNumber    String       @unique
+  hardwareVendor  String?
+  hardwareModel   String?
+  status          DeviceStatus @default(PENDING_PAIRING)
+  pairingCodeHash String?
+  pairedAt        DateTime?
+  lastSeenAt      DateTime?
+  firmwareVersion String?
+  agentVersion    String?
+  latitude        Decimal?     @db.Decimal(9, 6)
+  longitude       Decimal?     @db.Decimal(9, 6)
+  address         String?
+  mqttClientId    String?      @unique
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  company        Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  groups         DeviceGroupMember[]
+  heartbeats     DeviceHeartbeat[]
+  commands       DeviceCommand[]
+  schedules      ScheduleTargetDevice[]
+  otaAssignments OtaAssignment[]
+
+  @@index([companyId, status])
+}
+
+model DeviceGroup {
+  id          String   @id @default(uuid())
+  companyId   String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  company   Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  members   DeviceGroupMember[]
+  schedules ScheduleTargetGroup[]
+
+  @@unique([companyId, name])
+}
+
+model DeviceGroupMember {
+  deviceId   String
+  groupId    String
+  assignedAt DateTime @default(now())
+
+  device Device      @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  group  DeviceGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([deviceId, groupId])
+}
+
+model DeviceHeartbeat {
+  id         String   @id @default(uuid())
+  deviceId   String
+  receivedAt DateTime @default(now())
+  payload    Json
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, receivedAt])
+}
+
+model DeviceCommand {
+  id             String    @id @default(uuid())
+  deviceId       String
+  type           String
+  payload        Json
+  status         String    @default("PENDING")
+  issuedAt       DateTime  @default(now())
+  acknowledgedAt DateTime?
+  completedAt    DateTime?
+  errorMessage   String?
+
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([deviceId, status, issuedAt])
+}
+
+model MediaAsset {
+  id                  String      @id @default(uuid())
+  companyId           String
+  uploadedByUserId    String?
+  type                MediaType
+  status              MediaStatus @default(UPLOADED)
+  originalFilename    String
+  mimeType            String
+  sizeBytes           BigInt
+  checksumSha256      String
+  storageKeyOriginal  String
+  storageKeyOptimized String?
+  width               Int?
+  height              Int?
+  durationSeconds     Int?
+  failureReason       String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  company       Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  playlistItems PlaylistItem[]
+
+  @@index([companyId, status, type])
+}
+
+model Playlist {
+  id        String   @id @default(uuid())
+  companyId String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company   Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  items     PlaylistItem[]
+  schedules Schedule[]
+
+  @@unique([companyId, name])
+}
+
+model PlaylistItem {
+  id              String @id @default(uuid())
+  playlistId      String
+  mediaAssetId    String
+  orderIndex      Int
+  durationSeconds Int
+
+  playlist   Playlist   @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  mediaAsset MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Restrict)
+
+  @@unique([playlistId, orderIndex])
+}
+
+model Schedule {
+  id               String         @id @default(uuid())
+  companyId        String
+  campaignId       String?
+  playlistId       String
+  name             String
+  timezone         String         @default("Asia/Karachi")
+  startsAt         DateTime
+  endsAt           DateTime
+  daysOfWeek       Int[]
+  startMinuteOfDay Int
+  endMinuteOfDay   Int
+  priority         Int            @default(100)
+  status           ScheduleStatus @default(DRAFT)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  company       Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  campaign      Campaign?             @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  playlist      Playlist              @relation(fields: [playlistId], references: [id], onDelete: Restrict)
+  targetDevices ScheduleTargetDevice[]
+  targetGroups  ScheduleTargetGroup[]
+
+  @@index([companyId, status, startsAt, endsAt])
+}
+
+model ScheduleTargetDevice {
+  scheduleId String
+  deviceId   String
+
+  schedule Schedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  device   Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@id([scheduleId, deviceId])
+}
+
+model ScheduleTargetGroup {
+  scheduleId String
+  groupId    String
+
+  schedule Schedule    @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  group    DeviceGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@id([scheduleId, groupId])
+}
+
+model OtaRelease {
+  id                 String    @id @default(uuid())
+  version            String    @unique
+  status             OtaStatus @default(DRAFT)
+  artifactStorageKey String
+  checksumSha256     String
+  releaseNotes       String
+  createdAt          DateTime  @default(now())
+
+  assignments OtaAssignment[]
+}
+
+model OtaAssignment {
+  id           String    @id @default(uuid())
+  releaseId    String
+  deviceId     String
+  status       String    @default("PENDING")
+  assignedAt   DateTime  @default(now())
+  completedAt  DateTime?
+  errorMessage String?
+
+  release OtaRelease @relation(fields: [releaseId], references: [id], onDelete: Cascade)
+  device  Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@unique([releaseId, deviceId])
+}
+
+model Subscription {
+  id                      String   @id @default(uuid())
+  companyId               String
+  planCode                String
+  status                  String
+  seats                   Int
+  devicesIncluded         Int
+  providerCustomerRef     String?
+  providerSubscriptionRef String?
+  currentPeriodStart      DateTime
+  currentPeriodEnd        DateTime
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  companyId   String?
+  actorUserId String?
+  action      AuditAction
+  entityType  String
+  entityId    String?
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json
+  createdAt   DateTime    @default(now())
+
+  company Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  actor   User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([companyId, createdAt])
+}
