@@ -11,16 +11,16 @@
   },
   "dependencies": {
     "fastify": "^5.4.0",
-    "@fastify/cors": "^10.1.0",
-    "@fastify/helmet": "^11.0.0",
-    "@fastify/rate-limit": "^10.3.0",
-    "@fastify/http-proxy": "^9.0.0",
-    "dotenv": "^16.5.0",
-    "pino": "^9.7.0"
+    "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
+    "@fastify/rate-limit": "^11.1.0",
+    "@fastify/http-proxy": "^11.5.0",
+    "dotenv": "^17.4.2",
+    "pino": "^10.3.1"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.1.0",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^6.0.3"
   }
 }
