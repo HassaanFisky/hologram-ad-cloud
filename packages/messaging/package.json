@@ -1,0 +1,17 @@
+{
+  "name": "@hololed/messaging",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "mqtt": "^5.13.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

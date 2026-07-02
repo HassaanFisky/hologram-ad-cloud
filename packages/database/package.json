@@ -1,0 +1,22 @@
+{
+  "name": "@hololed/database",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "seed": "tsx prisma/seed.ts",
+    "lint": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.10.1"
+  },
+  "devDependencies": {
+    "prisma": "^6.10.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

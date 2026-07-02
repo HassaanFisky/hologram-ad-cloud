@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { Prisma } from '@prisma/client';
 import { prisma } from '../common/prisma';
 import { requireCompanyAccess, requireRoles, authenticate } from '../auth/rbac';
 import { AppError, notFound } from '../common/errors';
@@ -57,7 +58,7 @@ export async function deviceRoutes(app: FastifyInstance) {
     const device = await prisma.device.findUnique({ where: { id: params.deviceId }});
     if (!device) throw notFound('Device');
     if (user.role !== 'PLATFORM_ADMIN' && user.companyId !== device.companyId) throw new AppError(403, 'Forbidden');
-    const command = await prisma.deviceCommand.create({ data: { deviceId: device.id, type: body.type, payload: body.payload }});
+    const command = await prisma.deviceCommand.create({ data: { deviceId: device.id, type: body.type, payload: body.payload as Prisma.InputJsonValue }});
     app.mqttPublish?.(`devices/${device.id}/commands`, JSON.stringify({ commandId: command.id, issuedAt: command.issuedAt.toISOString(), type: command.type, payload: command.payload }));
     await audit({companyId: device.companyId, actorUserId: user.sub, action: 'COMMAND_DEVICE', entityType: 'DeviceCommand', entityId: command.id, metadata: {type: command.type}});
     return command;

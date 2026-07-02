@@ -1,0 +1,17 @@
+{
+  "name": "@hololed/logger",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "pino": "^9.7.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

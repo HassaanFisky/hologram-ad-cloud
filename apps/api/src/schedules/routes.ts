@@ -29,8 +29,8 @@ export async function scheduleRoutes(app: FastifyInstance) {
   app.get('/devices/:deviceId/sync-manifest', async (req) => {
     const params = z.object({ deviceId: z.string().uuid() }).parse(req.params);
     const device = await prisma.device.findUniqueOrThrow({ where: { id: params.deviceId }, include: { groups: true }});
-    const groupIds = device.groups.map(g => g.groupId);
+    const groupIds = device.groups.map((g: { groupId: string; deviceId: string; assignedAt: Date }) => g.groupId);
     const schedules = await prisma.schedule.findMany({ where: { companyId: device.companyId, status: 'ACTIVE', OR: [{ targetDevices: { some: { deviceId: device.id }}}, { targetGroups: { some: { groupId: { in: groupIds }}}}] }, include: { playlist: { include: { items: { include: { mediaAsset: true }, orderBy: { orderIndex: 'asc' }}}}}});
-    return { deviceId: device.id, generatedAt: new Date().toISOString(), schedules: schedules.map(s => ({ id: s.id, name: s.name, timezone: s.timezone, startsAt: s.startsAt, endsAt: s.endsAt, daysOfWeek: s.daysOfWeek, startMinuteOfDay: s.startMinuteOfDay, endMinuteOfDay: s.endMinuteOfDay, priority: s.priority, playlist: s.playlist.items.map(i => ({ mediaAssetId: i.mediaAssetId, durationSeconds: i.durationSeconds, storageKey: i.mediaAsset.storageKeyOptimized ?? i.mediaAsset.storageKeyOriginal, checksumSha256: i.mediaAsset.checksumSha256, mimeType: i.mediaAsset.mimeType })) })) };
+    return { deviceId: device.id, generatedAt: new Date().toISOString(), schedules: schedules.map((s: any) => ({ id: s.id, name: s.name, timezone: s.timezone, startsAt: s.startsAt, endsAt: s.endsAt, daysOfWeek: s.daysOfWeek, startMinuteOfDay: s.startMinuteOfDay, endMinuteOfDay: s.endMinuteOfDay, priority: s.priority, playlist: s.playlist.items.map((i: any) => ({ mediaAssetId: i.mediaAssetId, durationSeconds: i.durationSeconds, storageKey: i.mediaAsset.storageKeyOptimized ?? i.mediaAsset.storageKeyOriginal, checksumSha256: i.mediaAsset.checksumSha256, mimeType: i.mediaAsset.mimeType })) })) };
   });
 }

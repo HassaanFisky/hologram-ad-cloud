@@ -1,0 +1,1 @@
+export type MqttAck = { commandId: string; status: string; errorMessage?: string };

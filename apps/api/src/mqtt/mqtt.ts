@@ -3,6 +3,12 @@ import { FastifyInstance } from 'fastify';
 import { config } from '../config';
 import { prisma } from '../common/prisma';
 
+declare module 'fastify' {
+  interface FastifyInstance {
+    mqttPublish?: (topic: string, message: string) => void;
+  }
+}
+
 export function connectMqtt(app: FastifyInstance) {
   const client = mqtt.connect(config.MQTT_URL, { username: config.MQTT_USERNAME || undefined, password: config.MQTT_PASSWORD || undefined, clientId: `hololed-api-${process.pid}`, clean: true });
   client.on('connect', () => { client.subscribe('devices/+/acks'); client.subscribe('devices/+/telemetry'); });

@@ -1,0 +1,26 @@
+{
+  "name": "@hololed/gateway",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "lint": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "fastify": "^5.4.0",
+    "@fastify/cors": "^10.1.0",
+    "@fastify/helmet": "^11.0.0",
+    "@fastify/rate-limit": "^10.3.0",
+    "@fastify/http-proxy": "^9.0.0",
+    "dotenv": "^16.5.0",
+    "pino": "^9.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

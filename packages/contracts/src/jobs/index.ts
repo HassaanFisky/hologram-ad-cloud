@@ -1,0 +1,1 @@
+export type JobPayload<T = unknown> = { jobId: string; type: string; data: T };

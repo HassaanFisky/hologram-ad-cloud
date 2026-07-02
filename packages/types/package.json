@@ -1,0 +1,12 @@
+{
+  "name": "@hololed/types",
+  "version": "1.0.0",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "tsc --noEmit",
+    "test": "echo ok"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

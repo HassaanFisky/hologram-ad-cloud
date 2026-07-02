@@ -1,17 +1,26 @@
 {
   "name": "hololed-cloud",
   "private": true,
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev:api": "npm --workspace apps/api run dev",
     "dev:web": "npm --workspace apps/web run dev",
-    "build": "npm --workspaces run build",
-    "lint": "npm --workspaces run lint",
-    "test": "npm --workspaces run test",
+    "build": "npm --workspaces run build --if-present",
+    "lint": "npm --workspaces run lint --if-present",
+    "test": "npm --workspaces run test --if-present",
     "db:generate": "npm --workspace apps/api run db:generate",
     "db:migrate": "npm --workspace apps/api run db:migrate",
-    "db:deploy": "npm --workspace apps/api run db:deploy"
+    "db:deploy": "npm --workspace apps/api run db:deploy",
+    "dev:admin": "npm --workspace apps/admin run dev",
+    "dev:gateway": "npm --workspace apps/gateway run dev",
+    "dev:worker": "npm --workspace apps/worker run dev",
+    "dev:docs": "npm --workspace apps/docs run dev"
   },
-  "engines": { "node": ">=22.0.0" },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "packageManager": "npm@10.8.0"
 }

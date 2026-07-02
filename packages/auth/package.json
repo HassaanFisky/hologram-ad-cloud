@@ -1,0 +1,19 @@
+{
+  "name": "@hololed/auth",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc --noEmit",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "zod": "^3.25.67",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^3.0.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,1 @@
+export type WsMessage<T = unknown> = { event: string; data: T };

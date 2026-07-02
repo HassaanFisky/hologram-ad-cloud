@@ -1,0 +1,1 @@
+export type DeviceCommand = { commandId: string; type: string; payload: Record<string, unknown>; issuedAt: string };

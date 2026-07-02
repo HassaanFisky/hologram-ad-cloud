@@ -25,10 +25,12 @@ async function build() {
   await app.register(helmet);
   await app.register(cors, { origin: config.WEB_ORIGIN, credentials: true });
   await app.register(rateLimit, { max: 300, timeWindow: '1 minute' });
-  app.setErrorHandler((err, req, reply) => {
+  app.setErrorHandler((error, req, reply) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const err = error as any;
     req.log.error({ err }, 'request failed');
     if (err instanceof AppError) return reply.code(err.statusCode).send({ code: err.code, message: err.message });
-    if ('issues' in err) return reply.code(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request', details: (err as any).issues });
+    if (err && typeof err === 'object' && 'issues' in err) return reply.code(400).send({ code: 'VALIDATION_ERROR', message: 'Invalid request', details: err.issues });
     return reply.code(500).send({ code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' });
   });
   await app.register(healthRoutes);
