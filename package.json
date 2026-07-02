@@ -8,19 +8,27 @@
   "scripts": {
     "dev:api": "npm --workspace apps/api run dev",
     "dev:web": "npm --workspace apps/web run dev",
-    "build": "npm --workspaces run build --if-present",
-    "lint": "npm --workspaces run lint --if-present",
-    "test": "npm --workspaces run test --if-present",
-    "db:generate": "npm --workspace apps/api run db:generate",
-    "db:migrate": "npm --workspace apps/api run db:migrate",
-    "db:deploy": "npm --workspace apps/api run db:deploy",
     "dev:admin": "npm --workspace apps/admin run dev",
     "dev:gateway": "npm --workspace apps/gateway run dev",
     "dev:worker": "npm --workspace apps/worker run dev",
-    "dev:docs": "npm --workspace apps/docs run dev"
+    "dev:docs": "npm --workspace apps/docs run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test && npm run test:ci-configuration",
+    "test:ci-configuration": "node --test tests/integration/*.test.mjs",
+    "db:generate": "npm --workspace apps/api run db:generate",
+    "db:migrate": "npm --workspace apps/api run db:migrate",
+    "db:deploy": "npm --workspace apps/api run db:deploy"
   },
   "engines": {
     "node": ">=22.0.0"
   },
-  "packageManager": "npm@10.8.0"
+  "packageManager": "npm@10.8.0",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.3.4",
+    "turbo": "^2.10.2"
+  }
 }

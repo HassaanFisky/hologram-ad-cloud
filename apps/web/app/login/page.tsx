@@ -21,7 +21,7 @@ export default function Login() {
       localStorage.setItem('accessToken', r.accessToken);
       localStorage.setItem('refreshToken', r.refreshToken);
       router.push('/dashboard');
-    } catch (err) {
+    } catch (_err) {
       setError('Login failed');
     }
   }
