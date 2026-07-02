@@ -9,8 +9,8 @@
     "test": "node --test"
   },
   "dependencies": {
-    "zod": "^3.25.67",
-    "dotenv": "^16.5.0"
+    "zod": "^4.4.3",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "typescript": "^6.0.3"
