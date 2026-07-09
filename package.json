@@ -25,10 +25,10 @@
   },
   "packageManager": "npm@10.8.0",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^8.62.1",
-    "@typescript-eslint/parser": "^8.62.1",
+    "@typescript-eslint/eslint-plugin": "^8.63.0",
+    "@typescript-eslint/parser": "^8.63.0",
     "eslint": "^10.6.0",
     "eslint-config-next": "^16.2.10",
-    "turbo": "^2.10.2"
+    "turbo": "^2.10.4"
   }
 }
