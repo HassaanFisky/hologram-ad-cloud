@@ -12,6 +12,6 @@
     "mqtt": "^5.13.1"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }

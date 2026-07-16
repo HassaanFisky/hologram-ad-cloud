@@ -13,6 +13,6 @@
     "@aws-sdk/s3-request-presigner": "^3.1078.0"
   },
   "devDependencies": {
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }
