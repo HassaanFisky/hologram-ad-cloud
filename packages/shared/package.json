@@ -8,6 +8,6 @@
     "lint": "tsc --noEmit",
     "test": "node --test"
   },
-  "dependencies": { "zod": "^4.4.3" },
+  "dependencies": { "zod": "^4.6.5" },
   "devDependencies": { "typescript": "^6.0.3" }
 }
